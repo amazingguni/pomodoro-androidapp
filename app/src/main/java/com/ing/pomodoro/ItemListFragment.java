@@ -6,8 +6,12 @@ import android.support.v4.app.ListFragment;
 import android.view.View;
 import android.widget.ListView;
 
+
 import com.ing.pomodoro.adapter.TaskListAdapter;
 import com.ing.pomodoro.provider.TaskItemProvider;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A list fragment representing a list of Items. This fragment also supports tablet devices by
@@ -18,7 +22,7 @@ import com.ing.pomodoro.provider.TaskItemProvider;
  * @author amazingguni
  */
 public class ItemListFragment extends ListFragment {
-
+  private static final Logger logger = LoggerFactory.getLogger(ItemListFragment.class);
   /**
    * The serialization (saved instance state) Bundle key representing the activated item position.
    * Only used on tablets.
@@ -68,7 +72,7 @@ public class ItemListFragment extends ListFragment {
     super.onCreate(savedInstanceState);
 
     // TODO: replace with a real list adapter.
-    setListAdapter(new TaskListAdapter(this.getContext(), R.layout.listitem_task, TaskItemProvider.ITEMS));
+    setListAdapter(new TaskListAdapter(getActivity(), R.layout.listitem_task, TaskItemProvider.ITEMS));
 
   }
 
