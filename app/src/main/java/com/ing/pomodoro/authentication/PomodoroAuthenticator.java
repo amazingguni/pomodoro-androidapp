@@ -8,6 +8,7 @@ import android.accounts.NetworkErrorException;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 
 /**
@@ -59,9 +60,18 @@ public class PomodoroAuthenticator extends AbstractAccountAuthenticator {
   @Override
   public Bundle getAuthToken(AccountAuthenticatorResponse response, Account account, String authTokenType, Bundle options) throws NetworkErrorException {
     Log.d(TAG, "getAuthToken");
+    // Extract the username and password from the Account Manager, and ask the server for an appropriate AuthToken.
+    final AccountManager am = AccountManager.get(mContext);
+    String authToken = am.peekAuthToken(account, authTokenType);
 
-    // If the caller requested an authToken type we don't support, then return an error.
-    //if(!authTokenType.equals(AccountGeneral))
+    // if token is empty, try to authenticate the user.
+    if (TextUtils.isEmpty(authToken)) {
+      final String password = am.getPassword(account);
+      if (password != null) {
+        // authToken = sServerAuthenticate.
+      }
+    }
+
     return null;
   }
 

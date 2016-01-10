@@ -15,4 +15,6 @@ public class AccountConstant {
    * Account name.
    */
   public static final String ACCOUNT_NAME = "Pomodoro";
+
+  public static final ServerAuthenticate sServerAuthenticate = new PRestServerAuthenticate();
 }
