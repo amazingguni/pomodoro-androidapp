@@ -3,10 +3,12 @@ package com.ing.pomodoro.authentication;
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorResponse;
+import android.accounts.AccountManager;
 import android.accounts.NetworkErrorException;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 /**
  * Manages pomodoro server authenticator.
@@ -15,10 +17,17 @@ import android.os.Bundle;
  */
 
 public class PomodoroAuthenticator extends AbstractAccountAuthenticator {
-  /** Context. */
-  private Context mContext;
+  private final String TAG = PomodoroAuthenticator.class.getSimpleName();
+
+  /**
+   * Context.
+   */
+  private final Context mContext;
+
+
   public PomodoroAuthenticator(Context context) {
     super(context);
+    mContext = context;
   }
 
   @Override
@@ -30,10 +39,15 @@ public class PomodoroAuthenticator extends AbstractAccountAuthenticator {
   public Bundle addAccount(final AccountAuthenticatorResponse response, final String accountType,
                            final String authTokenType, final String[] requiredFeatures,
                            final Bundle options) throws NetworkErrorException {
+    Log.d(TAG, "addAccount");
     Intent intent = new Intent(mContext, PomodoroAuthenticator.class);
-    /** FIXME need to put extras later */
+    intent.putExtra(AuthenticatorActivity.ARG_ACCOUNT_TYPE, accountType);
+    intent.putExtra(AuthenticatorActivity.ARG_AUTH_TYPE, authTokenType);
+    intent.putExtra(AuthenticatorActivity.ARG_IS_ADDING_NEW_ACCOUNT, true);
+    intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
+
     final Bundle bundle = new Bundle();
-    bundle.putParcelable("intent", intent);
+    bundle.putParcelable(AccountManager.KEY_INTENT, intent);
     return bundle;
   }
 
@@ -44,6 +58,10 @@ public class PomodoroAuthenticator extends AbstractAccountAuthenticator {
 
   @Override
   public Bundle getAuthToken(AccountAuthenticatorResponse response, Account account, String authTokenType, Bundle options) throws NetworkErrorException {
+    Log.d(TAG, "getAuthToken");
+
+    // If the caller requested an authToken type we don't support, then return an error.
+    //if(!authTokenType.equals(AccountGeneral))
     return null;
   }
 
