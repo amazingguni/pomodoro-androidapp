@@ -33,9 +33,10 @@
                 android:value=".ItemListActivity" />
         </activity>
         <activity
-            android:name=".LoginActivity"
-            android:label="@string/title_activity_login" >
+            android:name=".authentication.AuthenticatorActivity"
+            android:label="@string/title_activity_authenticator">
         </activity>
     </application>
-
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
 </manifest>

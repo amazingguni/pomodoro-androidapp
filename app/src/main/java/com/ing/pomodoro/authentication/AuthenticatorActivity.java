@@ -1,10 +1,13 @@
 package com.ing.pomodoro.authentication;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -17,6 +20,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -26,6 +30,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ing.pomodoro.R;
 
@@ -33,9 +38,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.Manifest.permission.READ_CONTACTS;
+import static com.ing.pomodoro.authentication.AccountGeneral.sServerAuthenticate;
 
 /**
  * A login screen that offers login via email/password.
+ *
  * @author amazingguni
  */
 public class AuthenticatorActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
@@ -43,6 +50,8 @@ public class AuthenticatorActivity extends AppCompatActivity implements LoaderCa
   public final static String ARG_AUTH_TYPE = "AUTH_TYPE";
   public final static String ARG_ACCOUNT_NAME = "ACCOUNT_NAME";
   public final static String ARG_IS_ADDING_NEW_ACCOUNT = "IS_ADDING_ACCOUNT";
+
+  public final static String ARG_STATUS = "STATUS";
 
   /**
    * Id to identity READ_CONTACTS permission request.
@@ -66,16 +75,40 @@ public class AuthenticatorActivity extends AppCompatActivity implements LoaderCa
   private EditText mPasswordView;
   private View mProgressView;
   private View mLoginFormView;
+  /**
+   * AccountManager
+   */
+  private AccountManager mAccountManager;
+  /**
+   * Authentication token type
+   */
+  private String mAuthTokenType;
+
+  /**
+   * Account type.
+   */
+  private String mAccountType;
+
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_authenticator);
-    // Set up the login form.
     mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+    mPasswordView = (EditText) findViewById(R.id.password);
+
+    mAccountManager = AccountManager.get(getBaseContext());
+    String accountName = getIntent().getStringExtra(ARG_ACCOUNT_NAME);
+    mAuthTokenType = getIntent().getStringExtra(ARG_AUTH_TYPE);
+    if (mAuthTokenType == null)
+      mAuthTokenType = AccountGeneral.AUTHTOKEN_TYPE_FULL_ACCESS;
+
+    if (accountName != null) {
+      mEmailView.setText(accountName);
+    }
+
     populateAutoComplete();
 
-    mPasswordView = (EditText) findViewById(R.id.password);
     mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
       @Override
       public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -97,6 +130,8 @@ public class AuthenticatorActivity extends AppCompatActivity implements LoaderCa
 
     mLoginFormView = findViewById(R.id.login_form);
     mProgressView = findViewById(R.id.login_progress);
+
+    mAccountType = getIntent().getStringExtra(ARG_ACCOUNT_TYPE);
   }
 
   private void populateAutoComplete() {
@@ -190,7 +225,7 @@ public class AuthenticatorActivity extends AppCompatActivity implements LoaderCa
       // Show a progress spinner, and kick off a background task to
       // perform the user login attempt.
       showProgress(true);
-      mAuthTask = new UserLoginTask(email, password);
+      mAuthTask = new UserLoginTask(mAccountType, email, password, mAuthTokenType);
       mAuthTask.execute((Void) null);
     }
   }
@@ -298,50 +333,94 @@ public class AuthenticatorActivity extends AppCompatActivity implements LoaderCa
   /**
    * Represents an asynchronous login/registration task used to authenticate the user.
    */
-  public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+  public class UserLoginTask extends AsyncTask<Void, Void, Intent> {
+    private final String TAG = UserLoginTask.class.getSimpleName();
 
+    /**
+     * Account type.
+     */
+    private final String mAccountType;
+    /**
+     * Email.
+     */
     private final String mEmail;
+    /**
+     * Password.
+     */
     private final String mPassword;
+    /**
+     * Authentication token type.
+     */
+    private final String mAuthTokenType;
 
-    UserLoginTask(String email, String password) {
+    /**
+     * Constructor.
+     *
+     * @param accountType   account type
+     * @param email         email
+     * @param password      password
+     * @param authTokenType Authentication token type.
+     */
+    public UserLoginTask(final String accountType, final String email, final String password, final String authTokenType) {
+      mAccountType = accountType;
       mEmail = email;
       mPassword = password;
+      mAuthTokenType = authTokenType;
     }
 
     @Override
-    protected Boolean doInBackground(Void... params) {
-      // TODO: attempt authentication against a network service.
-
+    protected Intent doInBackground(final Void... params) {
+      Log.d(TAG, "doInBackground");
+      Bundle data = new Bundle();
       try {
-        // Simulate network access.
-        Thread.sleep(2000);
-      } catch (InterruptedException e) {
-        return false;
-      }
+        String authtoken = sServerAuthenticate.userSignIn(mEmail, mPassword, mAuthTokenType);
 
-      for (String credential : DUMMY_CREDENTIALS) {
-        String[] pieces = credential.split(":");
-        if (pieces[0].equals(mEmail)) {
-          // Account exists, return true if the password matches.
-          return pieces[1].equals(mPassword);
-        }
+        data.putString(AccountManager.KEY_ACCOUNT_NAME, mEmail);
+        data.putString(AccountManager.KEY_ACCOUNT_TYPE, mAccountType);
+        data.putString(AccountManager.KEY_AUTHTOKEN, authtoken);
+        data.putString(AccountManager.KEY_PASSWORD, mPassword);
+      } catch (Exception e) {
+        data.putString(AccountManager.KEY_AUTH_FAILED_MESSAGE, e.getMessage());
       }
-
-      // TODO: register the new account here.
-      return true;
+      final Intent res = new Intent();
+      res.putExtras(data);
+      return res;
     }
 
     @Override
-    protected void onPostExecute(final Boolean success) {
-      mAuthTask = null;
-      showProgress(false);
-
-      if (success) {
-        finish();
+    protected void onPostExecute(final Intent intent) {
+      Log.d(TAG, "onPostExecute");
+      if (intent.hasExtra(AccountManager.KEY_ERROR_MESSAGE)) {
+        Toast.makeText(getBaseContext(), intent.getStringExtra(AccountManager.KEY_ERROR_MESSAGE), Toast.LENGTH_SHORT).show();
       } else {
-        mPasswordView.setError(getString(R.string.error_incorrect_password));
-        mPasswordView.requestFocus();
+        finishLogin(intent);
       }
+
+    }
+
+    private void finishLogin(Intent intent) {
+      Log.d(TAG, "finishLogin");
+      String accountName = intent.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+      String accountPassword = intent.getStringExtra(AccountManager.KEY_PASSWORD);
+      final Account account = new Account(accountName, intent.getStringExtra(AccountManager.KEY_ACCOUNT_TYPE));
+
+      if (getIntent().getBooleanExtra(ARG_IS_ADDING_NEW_ACCOUNT, false)) {
+        Log.d(TAG, "finishLogin > addAccountExplicitly");
+        String authtoken = intent.getStringExtra(AccountManager.KEY_AUTHTOKEN);
+        String authtokenType = mAuthTokenType;
+
+        // Creating the account on the device and setting the auth token we got
+        // (Not setting the auth token will cause another call to the server to authenticate the user)
+        mAccountManager.addAccountExplicitly(account, accountPassword, null);
+        mAccountManager.setAuthToken(account, authtokenType, authtoken);
+      } else {
+        Log.d(TAG, "finishLogin > setPassword");
+        mAccountManager.setPassword(account, accountPassword);
+      }
+
+      //setAccountAuthenticatorResult(intent.getExtras());
+      setResult(RESULT_OK, intent);
+      finish();
     }
 
     @Override

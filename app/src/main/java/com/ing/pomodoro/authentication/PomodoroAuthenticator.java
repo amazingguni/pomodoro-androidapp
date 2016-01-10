@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
+import static com.ing.pomodoro.authentication.AccountGeneral.sServerAuthenticate;
+
 /**
  * Manages pomodoro server authenticator.
  *
@@ -63,16 +65,37 @@ public class PomodoroAuthenticator extends AbstractAccountAuthenticator {
     // Extract the username and password from the Account Manager, and ask the server for an appropriate AuthToken.
     final AccountManager am = AccountManager.get(mContext);
     String authToken = am.peekAuthToken(account, authTokenType);
-
+    Log.d(TAG, "peekAuthToken returned - " + authToken);
     // if token is empty, try to authenticate the user.
     if (TextUtils.isEmpty(authToken)) {
       final String password = am.getPassword(account);
       if (password != null) {
-        // authToken = sServerAuthenticate.
+        try {
+          Log.d(TAG, "re-authenticating with the existing password.");
+          authToken = sServerAuthenticate.userSignIn(account.name, password, authTokenType);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
       }
     }
+    // If we get an authToken - we return it
+    if (!TextUtils.isEmpty(authToken)) {
+      final Bundle result = new Bundle();
+      result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
+      result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
+      result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
+      return result;
+    }
 
-    return null;
+    // If you get here, then we couldn't access the user's password - so we need to re-prompt them
+    // for their credentials. We do that by creating an intent to display out AuthenticatorActivity.
+    final Intent intent = new Intent(mContext, AuthenticatorActivity.class);
+    intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
+    intent.putExtra(AuthenticatorActivity.ARG_ACCOUNT_TYPE, account.type);
+    intent.putExtra(AuthenticatorActivity.ARG_AUTH_TYPE, authTokenType);
+    final Bundle bundle = new Bundle();
+    bundle.putParcelable(AccountManager.KEY_INTENT, intent);
+    return bundle;
   }
 
   @Override
