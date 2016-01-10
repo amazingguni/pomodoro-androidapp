@@ -5,15 +5,18 @@ import android.accounts.Account;
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.NetworkErrorException;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 /**
  * Manages pomodoro server authenticator.
+ *
  * @author amazingguni
  */
 
 public class PomodoroAuthenticator extends AbstractAccountAuthenticator {
-
+  /** Context. */
+  private Context mContext;
   public PomodoroAuthenticator(Context context) {
     super(context);
   }
@@ -24,8 +27,14 @@ public class PomodoroAuthenticator extends AbstractAccountAuthenticator {
   }
 
   @Override
-  public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType, String[] requiredFeatures, Bundle options) throws NetworkErrorException {
-    return null;
+  public Bundle addAccount(final AccountAuthenticatorResponse response, final String accountType,
+                           final String authTokenType, final String[] requiredFeatures,
+                           final Bundle options) throws NetworkErrorException {
+    Intent intent = new Intent(mContext, PomodoroAuthenticator.class);
+    /** FIXME need to put extras later */
+    final Bundle bundle = new Bundle();
+    bundle.putParcelable("intent", intent);
+    return bundle;
   }
 
   @Override
