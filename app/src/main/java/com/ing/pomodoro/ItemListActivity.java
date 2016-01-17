@@ -1,12 +1,16 @@
 package com.ing.pomodoro;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.Toast;
 
+import com.ing.pomodoro.authentication.AccountGeneral;
 import com.ing.pomodoro.authentication.PomodoroAuthenticator;
 
 
@@ -21,6 +25,12 @@ import com.ing.pomodoro.authentication.PomodoroAuthenticator;
  */
 public class ItemListActivity extends AppCompatActivity
     implements ItemListFragment.Callbacks {
+  private final int REQ_SIGNIN = 2;
+  /**
+   * AccountManager
+   */
+  private AccountManager mAccountManager;
+
 
   /**
    * Whether or not the activity is in two-pane mode, i.e. running on a tablet device.
@@ -40,8 +50,8 @@ public class ItemListActivity extends AppCompatActivity
     fab.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        Intent loginIntent = new Intent(getApplicationContext(), PomodoroAuthenticator.class);
-        startActivity(loginIntent);
+//        Intent loginIntent = new Intent(getApplicationContext(), PomodoroAuthenticator.class);
+//        startActivity(loginIntent);
       }
     });
 
@@ -60,6 +70,21 @@ public class ItemListActivity extends AppCompatActivity
     }
 
     // TODO: If exposing deep links into your app, handle intents here.
+    checkAccountStatus();
+  }
+
+
+  /**
+   * Check the existing account. and if it is not exist, send a intent for login activity.
+   */
+  private void checkAccountStatus(){
+    final Account availableAccounts[] = mAccountManager.getAccountsByType(AccountGeneral.ACCOUNT_TYPE);
+    if (availableAccounts.length == 0) {
+
+      Intent loginIntent = new Intent(getBaseContext(), ItemListActivity.class);
+      startActivityForResult(loginIntent, REQ_SIGNIN);
+      Toast.makeText(this, "No accounts", Toast.LENGTH_SHORT).show();
+    }
   }
 
   /**

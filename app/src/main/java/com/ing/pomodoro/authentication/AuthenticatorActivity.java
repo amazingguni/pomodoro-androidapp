@@ -46,6 +46,7 @@ import static com.ing.pomodoro.authentication.AccountGeneral.sServerAuthenticate
  * @author amazingguni
  */
 public class AuthenticatorActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+
   public final static String ARG_ACCOUNT_TYPE = "ACCOUNT_TYPE";
   public final static String ARG_AUTH_TYPE = "AUTH_TYPE";
   public final static String ARG_ACCOUNT_NAME = "ACCOUNT_NAME";
@@ -58,13 +59,6 @@ public class AuthenticatorActivity extends AppCompatActivity implements LoaderCa
    */
   private static final int REQUEST_READ_CONTACTS = 0;
 
-  /**
-   * A dummy authentication store containing known user names and passwords. TODO: remove after
-   * connecting to a real authentication system.
-   */
-  private static final String[] DUMMY_CREDENTIALS = new String[]{
-      "foo@example.com:hello", "bar@example.com:world"
-  };
   /**
    * Keep track of the login task to ensure we can cancel it if requested.
    */
@@ -132,7 +126,10 @@ public class AuthenticatorActivity extends AppCompatActivity implements LoaderCa
     mProgressView = findViewById(R.id.login_progress);
 
     mAccountType = getIntent().getStringExtra(ARG_ACCOUNT_TYPE);
+
+
   }
+
 
   private void populateAutoComplete() {
     if (!mayRequestContacts()) {
