@@ -2,17 +2,19 @@ package com.ing.pomodoro;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.accounts.AccountManagerFuture;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.ing.pomodoro.authentication.AccountGeneral;
 import com.ing.pomodoro.authentication.PomodoroAuthenticator;
-
+import static com.ing.pomodoro.authentication.AccountGeneral.AUTHTOKEN_TYPE_FULL_ACCESS;
 
 /**
  * An activity representing a list of Items. This activity has different presentations for handset
@@ -25,6 +27,8 @@ import com.ing.pomodoro.authentication.PomodoroAuthenticator;
  */
 public class ItemListActivity extends AppCompatActivity
     implements ItemListFragment.Callbacks {
+  private final String TAG = ItemListActivity.class.getSimpleName();
+
   private final int REQ_SIGNIN = 2;
   /**
    * AccountManager
@@ -70,21 +74,28 @@ public class ItemListActivity extends AppCompatActivity
     }
 
     // TODO: If exposing deep links into your app, handle intents here.
-    checkAccountStatus();
+    checkAccountStatus(AUTHTOKEN_TYPE_FULL_ACCESS);
   }
 
 
   /**
    * Check the existing account. and if it is not exist, send a intent for login activity.
    */
-  private void checkAccountStatus(){
+  private void checkAccountStatus(final String authTokenType){
     final Account availableAccounts[] = mAccountManager.getAccountsByType(AccountGeneral.ACCOUNT_TYPE);
+    Log.d(TAG, String.format("availableAccount length : %s", availableAccounts.length));
     if (availableAccounts.length == 0) {
-
       Intent loginIntent = new Intent(getBaseContext(), ItemListActivity.class);
-      startActivityForResult(loginIntent, REQ_SIGNIN);
       Toast.makeText(this, "No accounts", Toast.LENGTH_SHORT).show();
+      startActivityForResult(loginIntent, REQ_SIGNIN);
+    } else{
+      // TODO : getExistingAccountAuthToken
     }
+  }
+
+  private String getExistingAccountAuthToken(final Account account, final String authTokenType){
+    final AccountManagerFuture<Bundle> future = mAccountManager.getAuthToken(account, authTokenType, null, this, null, null);
+    return null;
   }
 
   /**
