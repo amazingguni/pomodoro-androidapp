@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.ing.pomodoro.authentication.AccountGeneral;
+import com.ing.pomodoro.authentication.AuthenticatorActivity;
 
 import static com.ing.pomodoro.authentication.AccountGeneral.AUTHTOKEN_TYPE_FULL_ACCESS;
 
@@ -72,7 +73,7 @@ public class ItemListActivity extends AppCompatActivity
                     .findFragmentById(R.id.item_list))
                     .setActivateOnItemClick(true);
         }
-
+        mAccountManager = AccountManager.get(getApplicationContext());
         // TODO: If exposing deep links into your app, handle intents here.
         checkAccountStatus(AUTHTOKEN_TYPE_FULL_ACCESS);
     }
@@ -85,10 +86,11 @@ public class ItemListActivity extends AppCompatActivity
         final Account availableAccounts[] = mAccountManager.getAccountsByType(AccountGeneral.ACCOUNT_TYPE);
         Log.d(TAG, String.format("availableAccount length : %s", availableAccounts.length));
         if (availableAccounts.length == 0) {
-            Intent loginIntent = new Intent(getBaseContext(), ItemListActivity.class);
+            Intent loginIntent = new Intent(getBaseContext(), AuthenticatorActivity.class);
             Toast.makeText(this, "No accounts", Toast.LENGTH_SHORT).show();
             startActivityForResult(loginIntent, REQ_SIGNIN);
         } else {
+            Log.d(TAG, String.format("selected Account : %s", availableAccounts[0].name));
             // TODO : getExistingAccountAuthToken
         }
     }
