@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2015. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
   ~ Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
   ~ Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
@@ -8,22 +7,23 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="fill_parent"
-                android:layout_height="50dip"
-                android:padding="6dip">
-  <CheckBox
-      android:id="@+id/checkbox_taskstatus"
-      android:layout_width="wrap_content"
-      android:layout_height="fill_parent"
-      android:layout_alignParentBottom="true"
-      android:layout_alignParentTop="true"
-      android:layout_marginRight="6dip"/>
+    android:layout_width="fill_parent"
+    android:layout_height="50dip"
+    android:padding="6dip">
 
-  <TextView
-      android:id="@+id/textview_tasktitle"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_toRightOf="@id/checkbox_taskstatus"
-      android:text="develop a.java"
-      android:textSize="23sp"/>
+    <CheckBox
+        android:id="@+id/checkbox_taskstatus"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="6dip" />
+
+    <TextView
+        android:id="@+id/textview_tasktitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/checkbox_taskstatus"
+        android:text="develop a.java"
+        android:textSize="23sp" />
 </RelativeLayout>

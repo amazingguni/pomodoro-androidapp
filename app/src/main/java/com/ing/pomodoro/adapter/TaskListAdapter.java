@@ -31,62 +31,62 @@ import java.util.List;
  */
 
 public final class TaskListAdapter extends ArrayAdapter<PTask> {
-  /**
-   * Context.
-   */
-  private final Context context;
+    /**
+     * Context.
+     */
+    private final Context context;
 
-  /**
-   * Layout resource id.
-   */
-  private final int resource;
-  /**
-   * The list of PTask.
-   */
-  private final List<PTask> values;
+    /**
+     * Layout resource id.
+     */
+    private final int resource;
+    /**
+     * The list of PTask.
+     */
+    private final List<PTask> values;
 
-  /**
-   * Constructor.
-   *
-   * @param context  context
-   * @param resource resource
-   * @param values   values
-   */
-  public TaskListAdapter(final Context context, final int resource, final List<PTask> values) {
-    super(context, resource, values);
-    this.context = context;
-    this.resource = resource;
-    this.values = values;
-  }
-
-  @Override
-  public View getView(final int position, final View convertView, final ViewGroup parent) {
-    LayoutInflater inflater = (LayoutInflater) context
-        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    View rowView = inflater.inflate(resource, parent, false);
-    TextView textViewTaskTitle = (TextView) rowView.findViewById(R.id.textview_tasktitle);
-    CheckBox checkBoxTaskStatus = (CheckBox) rowView.findViewById(R.id.checkbox_taskstatus);
-    checkBoxTaskStatus.setOnCheckedChangeListener(new onTaskStatusChangeListener());
-    PTask task = values.get(position);
-    textViewTaskTitle.setText(task.getTitle());
-    TaskStatus taskStatus = task.getStatus();
-    if (taskStatus == TaskStatus.TODO) {
-      checkBoxTaskStatus.setChecked(false);
-      //textViewTaskTitle.setPaintFlags(textViewTaskTitle.getPaintFlags() ^ Paint.STRIKE_THRU_TEXT_FLAG);
-    } else if (taskStatus == TaskStatus.DONE) {
-      checkBoxTaskStatus.setChecked(true);
-      textViewTaskTitle.setPaintFlags(textViewTaskTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-    } else {
-      textViewTaskTitle.setPaintFlags(textViewTaskTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-      checkBoxTaskStatus.setChecked(true);
+    /**
+     * Constructor.
+     *
+     * @param context  context
+     * @param resource resource
+     * @param values   values
+     */
+    public TaskListAdapter(final Context context, final int resource, final List<PTask> values) {
+        super(context, resource, values);
+        this.context = context;
+        this.resource = resource;
+        this.values = values;
     }
-    return rowView;
-  }
 
-  private class onTaskStatusChangeListener implements CompoundButton.OnCheckedChangeListener {
     @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
+    public View getView(final int position, final View convertView, final ViewGroup parent) {
+        LayoutInflater inflater = (LayoutInflater) context
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View rowView = inflater.inflate(resource, parent, false);
+        TextView textViewTaskTitle = (TextView) rowView.findViewById(R.id.textview_tasktitle);
+        CheckBox checkBoxTaskStatus = (CheckBox) rowView.findViewById(R.id.checkbox_taskstatus);
+        checkBoxTaskStatus.setOnCheckedChangeListener(new onTaskStatusChangeListener());
+        PTask task = values.get(position);
+        textViewTaskTitle.setText(task.getTitle());
+        TaskStatus taskStatus = task.getStatus();
+        if (taskStatus == TaskStatus.TODO) {
+            checkBoxTaskStatus.setChecked(false);
+            //textViewTaskTitle.setPaintFlags(textViewTaskTitle.getPaintFlags() ^ Paint.STRIKE_THRU_TEXT_FLAG);
+        } else if (taskStatus == TaskStatus.DONE) {
+            checkBoxTaskStatus.setChecked(true);
+            textViewTaskTitle.setPaintFlags(textViewTaskTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        } else {
+            textViewTaskTitle.setPaintFlags(textViewTaskTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            checkBoxTaskStatus.setChecked(true);
+        }
+        return rowView;
     }
-  }
+
+    private class onTaskStatusChangeListener implements CompoundButton.OnCheckedChangeListener {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+        }
+    }
 }
